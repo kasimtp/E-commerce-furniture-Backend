@@ -3,14 +3,14 @@ import validator from "validator";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 
-//api to resgiter user
 
+// api to register user
 const registerUser = async (req, res) => {
   const { name, email, password } = req.body;
 
   try {
-    if ((!name || !email || !password)) {
-      return res.json({ success: false, message: "missing Details" });
+    if (!name || !email || !password) {
+      return res.json({ success: false, message: "missing Detiles" });
     }
 
     if (!validator.isEmail(email)) {
@@ -18,11 +18,11 @@ const registerUser = async (req, res) => {
     }
 
     if (password.length < 8) {
-      return res.json({ success: false, message: "password must be at least 6 characters" });
+      return res.json({ success: false, message: "Enter strong password" });
     }
-    const existtingUser = await userModel.findOne({ email });
 
-    if (existtingUser) {
+    const existingUser = await userModel.findOne({ email });
+    if (existingUser) {
       return res
         .status(400)
         .json({ success: false, message: "User already exists" });
@@ -38,12 +38,15 @@ const registerUser = async (req, res) => {
       password: hashedPassword,
     };
 
-    const newUser = userModel(userData);
+    const newUser = new userModel(userData);
     const user = await newUser.save();
-
-    //create token
+    
+    console.log("reg",user);
+    
+    
+    //creat token
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
-    res.json({ success: true, token , message:"user registered successfull" });
+    res.json({ success: true, token });
   } catch (error) {
     console.log(error);
     res.json({ success: false, message: error.message });
@@ -53,38 +56,38 @@ const registerUser = async (req, res) => {
 //api for using login
 
 const loginUser = async (req, res) => {
-    try {
-      const { email, password } = req.body;
-  
-      // Validate input
-      if (!email || !password) {
-        return res.status(400).json({ success: false, message: "Email and password are required" });
-      }
-  
-      // Check if user exists
-      const user = await userModel.findOne({ email });
-      if (!user) {
-        return res.status(400).json({ success: false, message: "User not found" });
-      }
-  
-      // Compare password
-      const isMatch = await bcrypt.compare(password, user.password);
-      if (!isMatch) {
-        return res.status(400).json({ success: false, message: "Invalid password" });
-      }
-  
-      // Generate JWT
-      const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-        expiresIn: "1h"
-      });
-  
-      res.status(200).json({ success: true, token, message: "Login successful" });
-  
-    } catch (error) {
-      console.error("Login error:", error);
-      res.status(500).json({ success: false, message: "Server error" });
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res
+        .status(400)
+        .json({ message: "Email and password are required" });
     }
-  };
+
+    const user = await userModel.findOne({ email });
+    console.log(user);
+
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, message: "User does not exist" });
+    }
+
+    const isMacth = await bcrypt.compare(password, user.password);
+
+    if (isMacth) {
+      const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
+      res.json({ success: true, token });
+    } else {
+      res.json({ success: false, message: "Invalid credentials" });
+    }
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: error.message });
+  }
+};
+
   
 
 export {registerUser,loginUser};
