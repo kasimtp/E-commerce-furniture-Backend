@@ -25,6 +25,7 @@ app.use(cors());
 
 //api end point
 app.use('/api/user',userRouter)
+app.use('/api/products' )
 
 
 // API Routes
