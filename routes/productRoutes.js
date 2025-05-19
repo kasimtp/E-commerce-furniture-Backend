@@ -56,6 +56,8 @@ router.post('/post-product', uploadImg.single("image"), async (req, res) => {
       image: image_url
     });
 
+    
+
     res.status(201).json(newData);
   } catch (error) {
     res.status(400).json(error);
