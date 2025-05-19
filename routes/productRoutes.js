@@ -44,16 +44,15 @@ router.get('/get-product', async (req, res) => {
 router.post('/post-product', uploadImg.single("image"), async (req, res) => {
   try {
     const image_url = `http://localhost:5000/api/images/${req.file.filename}`;
-    const { name, price, unit } = req.body;
+    const { name, price} = req.body;
 
-    if (!name || !price || !unit) {
+    if (!name || !price  ) {
       return res.status(400).json({ message: "Name, Price and Unit are required" });
     }
 
     const newData = await productModel.create({
       name,
       price,
-      unit,
       image: image_url
     });
 
