@@ -40,6 +40,7 @@ router.get('/get-product', async (req, res) => {
   }
 });
 
+
 // Create new product
 router.post('/post-product', uploadImg.single("image"), async (req, res) => {
   try {
