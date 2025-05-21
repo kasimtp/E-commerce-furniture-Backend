@@ -7,7 +7,8 @@ import { fileURLToPath } from 'url';
 import connectDB from './config/mongodb.js';
 import connectCloudinary from './config/cloudinary.js';
 import userRouter from './routes/userRoute.js';
-import productRouter from './routes/productRoutes.js'; // ✅ ES Module export
+import productRouter from './routes/productRoutes.js'; 
+import adminRouter from './routes/adminRoutes.js'
 
 dotenv.config();
 
@@ -29,6 +30,7 @@ app.use('/upload/images', express.static(path.join(__dirname, 'upload/images')))
 // Routes
 app.use('/api/user', userRouter);
 app.use('/api', productRouter);
+app.use('/api/admin', adminRouter )
 
 // Test route
 app.get("/", (req, res) => {
