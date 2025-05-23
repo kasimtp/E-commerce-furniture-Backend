@@ -1,6 +1,6 @@
  //adi admin login
 
-const loginAdmin = async (req, res) => {
+export const loginAdmin = async (req, res) => {
   try {
     const { email, password } = req.body;
 
@@ -18,4 +18,4 @@ const loginAdmin = async (req, res) => {
     res.json({ success: false, message: error.message });
   }
 };
-export {loginAdmin}
+
