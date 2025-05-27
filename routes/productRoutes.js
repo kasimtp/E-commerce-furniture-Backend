@@ -2,10 +2,9 @@ import express from 'express';
 import multer from 'multer';
 import path from 'path';
 import { fileURLToPath } from 'url';
-
 import productModel from '../models/productModel.js';
-
 const router = express.Router();
+const port= 5000
 
 // __dirname support
 const __filename = fileURLToPath(import.meta.url);

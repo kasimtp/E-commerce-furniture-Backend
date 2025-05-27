@@ -9,6 +9,8 @@ import connectCloudinary from './config/cloudinary.js';
 import userRouter from './routes/userRoute.js';
 import productRouter from './routes/productRoutes.js'; 
 import adminRouter from './routes/adminRoutes.js'
+import cartRoute from './routes/cartRoute.js'
+
 
 dotenv.config();
 
@@ -31,6 +33,7 @@ app.use('/upload/images', express.static(path.join(__dirname, 'upload/images')))
 app.use('/api/user', userRouter);
 app.use('/api', productRouter);
 app.use('/api/admin', adminRouter )
+app.use('/api',cartRoute)
 
 // Test route
 app.get("/", (req, res) => {
