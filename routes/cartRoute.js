@@ -47,48 +47,53 @@ router.get('/get-cart/:userId', async (req, res) => {
 });
 
 
+router.get('/get-cart', async (req, res) => {
+    try {
+        const data = await cartModel.find()
+            .populate('user')
+            .populate('product');
+        res.status(200).json(data);
+    } catch (error) {
+        res.status(400).json(error);
+    }
+});
 
 
 
 
-// ✅ GET: Get all cart items
-// router.get("/get-cart", async (req, res) => {
-//   try {
-//     const data = await cartModel.find().populate("user").populate("product");
-//     res.status(200).json(data);
-//   } catch (error) {
-//     res.status(400).json({ message: "Failed to fetch all cart items", error });
-//   }
-// });
+
+
+
+
 
 // ✅ PUT: Update a cart item by ID
-// router.put("/put-cart/:id", async (req, res) => {
-//   try {
-//     const id = req.params.id;
-//     const updateData = await cartModel.findOneAndUpdate({ _id: id }, req.body, {
-//       new: true,
-//     });
-//     res.status(200).json(updateData);
-//   } catch (error) {
-//     res.status(400).json({ message: "Failed to update cart item", error });
-//   }
-// });
+router.put("/put-cart/:id", async (req, res) => {
+  try {
+    const id = req.params.id;
+    const updateData = await cartModel.findOneAndUpdate({ _id: id }, req.body, {
+      new: true,
+    });
+    res.status(200).json(updateData);
+  } catch (error) {
+    res.status(400).json({ message: "Failed to update cart item", error });
+  }
+});
 
 // ✅ DELETE: Remove a cart item by ID
-// router.delete("/delete-cart/:id", async (req, res) => {
-//   try {
-//     const id = req.params.id;
-//     const deleteData = await cartModel.findByIdAndDelete(id);
-//     if (!deleteData) {
-//       return res.status(404).json({ message: "Cart item not found" });
-//     }
-//     res.status(200).json({
-//       message: "Cart item deleted successfully",
-//       deletedCart: deleteData,
-//     });
-//   } catch (error) {
-//     res.status(400).json({ message: "Failed to delete cart item", error });
-//   }
-// });
+router.delete("/delete-cart/:id", async (req, res) => {
+  try {
+    const id = req.params.id;
+    const deleteData = await cartModel.findByIdAndDelete(id);
+    if (!deleteData) {
+      return res.status(404).json({ message: "Cart item not found" });
+    }
+    res.status(200).json({
+      message: "Cart item deleted successfully",
+      deletedCart: deleteData,
+    });
+  } catch (error) {
+    res.status(400).json({ message: "Failed to delete cart item", error });
+  }
+});
 
 export default router;
