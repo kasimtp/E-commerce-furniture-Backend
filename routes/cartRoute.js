@@ -26,6 +26,31 @@ router.post("/post-cart", async (req, res) => {
   }
 });
 
+// ✅ PUT: Update cart quantity (increment or decrement)
+router.put("/update-cart/:id", async (req, res) => {
+  const { id } = req.params;
+  const { type } = req.body;
+
+  try {
+    const cartItem = await cartModel.findById(id);
+    if (!cartItem) {
+      return res.status(404).json({ message: "Cart item not found" });
+    }
+
+    if (type === "increment") {
+      cartItem.quantity += 1;
+    } else if (type === "decrement" && cartItem.quantity > 1) {
+      cartItem.quantity -= 1;
+    }
+
+    const updatedItem = await cartItem.save();
+    res.status(200).json(updatedItem);
+  } catch (error) {
+    res.status(500).json({ message: "Failed to update quantity", error });
+  }
+});
+
+
 router.get('/get-cart/:userId', async (req, res) => {
   const userId = req.params.userId;
 
