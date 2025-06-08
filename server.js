@@ -10,6 +10,7 @@ import userRouter from './routes/userRoute.js';
 import productRouter from './routes/productRoutes.js'; 
 import adminRouter from './routes/adminRoutes.js'
 import cartRoute from './routes/cartRoute.js'
+import wishListRoutes from './routes/wishListRoute.js'
 
 
 dotenv.config();
@@ -33,7 +34,8 @@ app.use('/upload/images', express.static(path.join(__dirname, 'upload/images')))
 app.use('/api/user', userRouter);
 app.use('/api', productRouter);
 app.use('/api/admin', adminRouter )
-app.use('/api',cartRoute)
+app.use('/api', cartRoute)
+app.use( '/api', wishListRoutes)
 
 // Test route
 app.get("/", (req, res) => {
