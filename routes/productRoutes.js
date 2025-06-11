@@ -89,4 +89,16 @@ router.delete('/delete-product/:id', async (req, res) => {
   }
 });
 
+//add photo data in products page to product detiels page
+
+router.get('/product/:id', async (req,res) => {
+  try {
+    const product = await productModel.findById(req.params.id);
+    if(!product )return res.status(404).json({error: "Product not found"});
+    res.json(product)
+  } catch (error) { res.status(500).json({error: "Failed to fetch product"})
+    
+  }
+})
+
 export default router;
