@@ -8,35 +8,28 @@ import { v2 as cloudinary } from 'cloudinary';
 
 const router = express.Router();
 
-// __dirname support (for ES modules)
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Multer setup – Store in temp folder before uploading to Cloudinary
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, 'temp'),
   filename: (req, file, cb) => cb(null, Date.now() + path.extname(file.originalname))
 });
 const uploadImg = multer({ storage });
 
-// ✅ POST: Add new product with image
 router.post('/post-product', uploadImg.single('image'), async (req, res) => {
   try {
     const { name, price, category } = req.body;
-
     if (!name || !price || !req.file) {
       return res.status(400).json({ message: 'Name, price, and image required' });
     }
 
-    // Upload image to Cloudinary
     const result = await cloudinary.uploader.upload(req.file.path, {
       folder: 'ecommerce-products'
     });
 
-    // Delete temp file after upload
     fs.unlinkSync(req.file.path);
 
-    // Save product in MongoDB
     const newProduct = await productModel.create({
       name,
       price,
@@ -50,7 +43,6 @@ router.post('/post-product', uploadImg.single('image'), async (req, res) => {
   }
 });
 
-// ✅ GET: All products
 router.get('/get-product', async (req, res) => {
   try {
     const data = await productModel.find();
@@ -60,7 +52,6 @@ router.get('/get-product', async (req, res) => {
   }
 });
 
-// ✅ PUT: Update product
 router.put('/put-product/:id', async (req, res) => {
   try {
     const updatedData = await productModel.findByIdAndUpdate(req.params.id, req.body, { new: true });
@@ -70,7 +61,6 @@ router.put('/put-product/:id', async (req, res) => {
   }
 });
 
-// ✅ DELETE: Product
 router.delete('/delete-product/:id', async (req, res) => {
   try {
     const deleted = await productModel.findByIdAndDelete(req.params.id);
@@ -81,7 +71,6 @@ router.delete('/delete-product/:id', async (req, res) => {
   }
 });
 
-// ✅ GET: Single Product
 router.get('/product/:id', async (req, res) => {
   try {
     const product = await productModel.findById(req.params.id);
