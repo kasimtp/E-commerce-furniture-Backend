@@ -1,35 +1,56 @@
 import express from 'express';
 import multer from 'multer';
+import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import productModel from '../models/productModel.js';
-const router = express.Router();
-const port= 5000
+import { v2 as cloudinary } from 'cloudinary';
 
-// __dirname support
+const router = express.Router();
+
+// __dirname support (for ES modules)
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Multer storage
+// Multer setup – Store in temp folder before uploading to Cloudinary
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, "upload/images");
-  },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + path.extname(file.originalname));
+  destination: (req, file, cb) => cb(null, 'temp'),
+  filename: (req, file, cb) => cb(null, Date.now() + path.extname(file.originalname))
+});
+const uploadImg = multer({ storage });
+
+// ✅ POST: Add new product with image
+router.post('/post-product', uploadImg.single('image'), async (req, res) => {
+  try {
+    const { name, price, category } = req.body;
+
+    if (!name || !price || !req.file) {
+      return res.status(400).json({ message: 'Name, price, and image required' });
+    }
+
+    // Upload image to Cloudinary
+    const result = await cloudinary.uploader.upload(req.file.path, {
+      folder: 'ecommerce-products'
+    });
+
+    // Delete temp file after upload
+    fs.unlinkSync(req.file.path);
+
+    // Save product in MongoDB
+    const newProduct = await productModel.create({
+      name,
+      price,
+      category,
+      image: result.secure_url
+    });
+
+    res.status(201).json(newProduct);
+  } catch (error) {
+    res.status(500).json({ error: error.message || 'Upload failed' });
   }
 });
 
-const uploadImg = multer({ storage: storage });
-
-// Serve images
-router.get("/images/:imageName", (req, res) => {
-  const imageName = req.params.imageName;
-  const imagePath = path.join(__dirname, "../upload/images", imageName);
-  res.sendFile(imagePath);
-});
-
-// Get all products
+// ✅ GET: All products
 router.get('/get-product', async (req, res) => {
   try {
     const data = await productModel.find();
@@ -39,67 +60,141 @@ router.get('/get-product', async (req, res) => {
   }
 });
 
-
-// Create new product
-router.post('/post-product', uploadImg.single("image"), async (req, res) => {
-  try {
-    const image_url = `http://localhost:5000/api/images/${req.file.filename}`;
-    const { name, price,category } = req.body;
-
-    if (!name || !price ) {
-      return res.status(400).json({ message: "Name, Price and category  are required" });
-    }
-
-    const newData = await productModel.create({
-      name,
-      price,
-      image: image_url ,
-      category
-    });
-
-    
-
-    res.status(201).json(newData);
-  } catch (error) {
-    res.status(400).json(error);
-  }
-});
-
-// Update product
+// ✅ PUT: Update product
 router.put('/put-product/:id', async (req, res) => {
   try {
-    const id = req.params.id;
-    const updateData = await productModel.findByIdAndUpdate(id, req.body, { new: true });
-    res.status(200).json(updateData);
+    const updatedData = await productModel.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    res.status(200).json(updatedData);
   } catch (error) {
     res.status(400).json(error);
   }
 });
 
-// Delete product
+// ✅ DELETE: Product
 router.delete('/delete-product/:id', async (req, res) => {
   try {
-    const id = req.params.id;
-    const deleteData = await productModel.findByIdAndDelete(id);
-    if (!deleteData) {
-      return res.status(404).json({ message: "Product not found" });
-    }
-    res.status(200).json({ message: "Product deleted successfully", deletedProduct: deleteData });
+    const deleted = await productModel.findByIdAndDelete(req.params.id);
+    if (!deleted) return res.status(404).json({ message: 'Product not found' });
+    res.status(200).json({ message: 'Deleted', deleted });
   } catch (error) {
     res.status(400).json(error);
   }
 });
 
-//add photo data in products page to product detiels page
-
-router.get('/product/:id', async (req,res) => {
+// ✅ GET: Single Product
+router.get('/product/:id', async (req, res) => {
   try {
     const product = await productModel.findById(req.params.id);
-    if(!product )return res.status(404).json({error: "Product not found"});
-    res.json(product)
-  } catch (error) { res.status(500).json({error: "Failed to fetch product"})
-    
+    if (!product) return res.status(404).json({ error: 'Product not found' });
+    res.status(200).json(product);
+  } catch (error) {
+    res.status(500).json({ error: 'Fetch failed' });
   }
-})
+});
 
 export default router;
+
+
+
+
+
+
+
+
+
+
+
+// import express from 'express';
+// import multer from 'multer';
+// import fs from 'fs';
+// import path from 'path';
+// import { fileURLToPath } from 'url';
+// import productModel from '../models/productModel.js';
+// import { cloudinary } from '../config/cloudinary.js';
+
+// const router = express.Router();
+
+// // __dirname for ES module
+// const __filename = fileURLToPath(import.meta.url);
+// const __dirname = path.dirname(__filename);
+
+// // Multer setup (store temporarily)
+// const storage = multer.diskStorage({
+//   destination: (req, file, cb) => cb(null, "temp"),
+//   filename: (req, file, cb) => cb(null, Date.now() + path.extname(file.originalname)),
+// });
+// const uploadImg = multer({ storage: storage });
+
+// // 🔄 POST: Create Product and Upload Image to Cloudinary
+// router.post('/post-product', uploadImg.single("image"), async (req, res) => {
+//   try {
+//     const { name, price, category } = req.body;
+
+//     if (!name || !price || !req.file) {
+//       return res.status(400).json({ message: "Name, Price and image required" });
+//     }
+
+//     const result = await cloudinary.uploader.upload(req.file.path, {
+//       folder: "ecommerce-products",
+//     });
+
+//     fs.unlinkSync(req.file.path); // delete local file
+
+//     const newProduct = await productModel.create({
+//       name,
+//       price,
+//       category,
+//       image: result.secure_url,
+//     });
+
+//     res.status(201).json(newProduct);
+//   } catch (error) {
+//     res.status(500).json({ error: error.message || "Upload failed" });
+//   }
+// });
+
+// // GET all products
+// router.get('/get-product', async (req, res) => {
+//   try {
+//     const data = await productModel.find();
+//     res.status(200).json(data);
+//   } catch (error) {
+//     res.status(400).json(error);
+//   }
+// });
+
+// // PUT: Update product
+// router.put('/put-product/:id', async (req, res) => {
+//   try {
+//     const id = req.params.id;
+//     const updatedData = await productModel.findByIdAndUpdate(id, req.body, { new: true });
+//     res.status(200).json(updatedData);
+//   } catch (error) {
+//     res.status(400).json(error);
+//   }
+// });
+
+// // DELETE: Product
+// router.delete('/delete-product/:id', async (req, res) => {
+//   try {
+//     const id = req.params.id;
+//     const deleted = await productModel.findByIdAndDelete(id);
+//     if (!deleted) return res.status(404).json({ message: "Product not found" });
+//     res.status(200).json({ message: "Deleted", deleted });
+//   } catch (error) {
+//     res.status(400).json(error);
+//   }
+// });
+
+// // GET: Single Product
+// router.get('/product/:id', async (req, res) => {
+//   try {
+//     const product = await productModel.findById(req.params.id);
+//     if (!product) return res.status(404).json({ error: "Not found" });
+//     res.status(200).json(product);
+//   } catch (error) {
+//     res.status(500).json({ error: "Fetch failed" });
+//   }
+// });
+
+// export default router;
