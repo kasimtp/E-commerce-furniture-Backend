@@ -176,11 +176,11 @@ app.use(cors({
 app.use('/upload/images', express.static(path.join(__dirname, 'upload/images')));
 
 // Routes
-app.use('/api/user', userRouter);
-app.use('/api', productRouter);
-app.use('/api/admin', adminRouter);
-app.use('/api', cartRoute);
-app.use('/api', wishListRoutes);
+app.use("/api/user", userRouter);
+app.use("/api", productRouter);
+app.use("/api/admin", adminRouter);
+app.use("/api", cartRoute);
+app.use("/api", wishListRoutes);
 
 // Test Route
 app.get("/", (req, res) => {
