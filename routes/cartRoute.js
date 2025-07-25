@@ -2,7 +2,7 @@ import express from "express";
 import mongoose from 'mongoose';
 import cartModel from "../models/cartModel.js";
 const router = express.Router();
-const port = 5000
+// const port = 5000
 
 
 
