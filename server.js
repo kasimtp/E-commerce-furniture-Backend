@@ -181,6 +181,8 @@ app.use("/api", productRouter);
 app.use("/api/admin", adminRouter);
 app.use("/api", cartRoute);
 app.use("/api", wishListRoutes);
+app.use("/api", productRouter);
+
 
 // Test Route
 app.get("/", (req, res) => {
