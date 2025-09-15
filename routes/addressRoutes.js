@@ -1,11 +1,12 @@
 import express from "express";
 import Address from "../models/addressModel.js";
+import authUser from "../middlewares/authUser.js";
 
 const router = express.Router();
 
 // @desc   Save new address
 // @route  POST /api/addresses
-router.post("/", async (req, res) => {
+router.post("/",authUser, async (req, res) => {
   try {
     const address = new Address(req.body);
     await address.save();
