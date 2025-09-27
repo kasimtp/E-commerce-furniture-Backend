@@ -6,13 +6,18 @@ const router = express.Router();
 
 // @desc   Save new address
 // @route  POST /api/addresses
-router.post("/",authUser, async (req, res) => {
+router.post("/", authUser, async (req, res) => {
   try {
     const address = new Address(req.body);
     await address.save();
-    res.status(201).json({ message: "Address saved successfully", address });
+    res.status(201).json({ 
+      success: true,
+      message: "Address saved successfully", 
+      address });
   } catch (error) {
-    res.status(400).json({ message: "Error saving address", error: error.message });
+    res
+      .status(400)
+      .json({ message: "Error saving address", error: error.message });
   }
 });
 
