@@ -17,6 +17,7 @@ import adminRouter from './routes/adminRoutes.js';
 import cartRoute from './routes/cartRoute.js';
 import wishListRoutes from './routes/wishListRoute.js';
 import addressRoutes from './routes/addressRoutes.js';
+import paymentRoute from './routes/paymentRoute.js';
 dotenv.config();
 
 const app = express();
@@ -61,6 +62,7 @@ app.use("/api/admin", adminRouter);
 app.use("/api", cartRoute);
 app.use("/api", wishListRoutes);
 app.use("/api", productRouter);
+app.use("/api/payment", paymentRoute);
 
 app.use("/api/addresses", addressRoutes);
 
