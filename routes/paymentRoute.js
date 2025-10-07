@@ -73,7 +73,7 @@ const razorpay = new Razorpay({
 });
 
 // Create Order
-router.post("/orders/creat4e", async (req, res) => {
+router.post("/orders/create", async (req, res) => {
   try {
     const { amount } = req.body; // amount in paise
 
